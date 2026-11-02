@@ -19,7 +19,7 @@
     --purple: #8b5cf6;
     --purple-hover: #7c3aed;
     --yellow: #ffd93d;
-    --bg: #f4f6fb;
+    --bg: #bcda38;
     --bg-card: #ffffff;
     --bg-elevated: #ffffff;
     --bg-subtle: #f8fafc;
@@ -129,10 +129,6 @@ body.tab-usuarios {
 
 body {
     background: var(--bg);
-    background-image: var(--bg-image);
-    background-size: cover;
-    background-position: center;
-    background-repeat: repeat-x;
     color: var(--text);
     padding: 16px;
     min-height: 100vh;
