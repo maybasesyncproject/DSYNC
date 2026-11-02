@@ -2782,9 +2782,10 @@ body.dark-mode .scanner-produto-info.erro {
 #addProdutoInfo strong {
     color: var(--primary);
 }
+
 @media (max-width: 768px) {
     .tabela-carga {
-        width: 100%;
+        width: 80%;
         table-layout: fixed;
         font-size: 11px;
     }
