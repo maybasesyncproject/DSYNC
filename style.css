@@ -124,11 +124,12 @@ body.tab-usuarios {
     font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-image: var(--bg-image);
+    
 }
 
 body {
     background: var(--bg);
+    background-image: var(--bg-image);
     color: var(--text);
     padding: 16px;
     min-height: 100vh;
