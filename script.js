@@ -418,26 +418,13 @@ document.addEventListener('keydown', function (e) {
 document.addEventListener('DOMContentLoaded', function () {
   console.log('🚀 Inicializando D.Sync...');
 
-  console.log('ETAPA 1 - DOM carregado');
-
-  const tela = document.getElementById('telaCarregamento');
-  console.log('ETAPA 2 - Tela:', tela);
-
-  const login = document.getElementById('loginScreen');
-  console.log('ETAPA 3 - Login:', login);
-
-  const app = document.getElementById('appContent');
-  console.log('ETAPA 4 - App:', app);
-
-  tela.style.display = 'flex';
-
-  console.log('ETAPA 5 - Tela de carregamento exibida');
+  // Oculta as telas enquanto verifica a sessão
+document.getElementById('loginScreen').style.display = 'none';
+document.getElementById('appContent').style.display = 'none';
 
   carregarDados();
   carregarInsumos();
   carregarPedidoCarga();
-
-  console.log('ETAPA 6 - Dados locais carregados');
 
   // Recupera sessão do Supabase
   if (window.supabase?.auth) {
@@ -461,23 +448,15 @@ document.addEventListener('DOMContentLoaded', function () {
         entrarApp();
 
       } else {
-        document.getElementById('telaCarregamento').style.display = 'none';
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('appContent').style.display = 'none';
-
       }
     }).catch((erro) => {
       console.error('Erro ao verificar sessão:', erro);
-      document.getElementById('telaCarregamento').style.display = 'none';
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.getElementById('appContent').style.display = 'none';
     });
 
   } else {
     console.error('Supabase ainda não foi carregado.');
-    document.getElementById('telaCarregamento').style.display = 'none';
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('appContent').style.display = 'none';
   }
 });
 
@@ -882,7 +861,6 @@ async function carregarDaNuvem() {
 // ===== ENTRAR NO APP =====
 
 async function entrarApp() {
-  document.getElementById('telaCarregamento').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appContent').style.display = 'block';
 
@@ -3406,11 +3384,11 @@ function importarDados() {
 }
 
 function abrirMenuDados() {
-  document.getElementById('modalMenuDados').style.display = 'flex';
+    document.getElementById('modalMenuDados').style.display = 'flex';
 }
 
 function fecharMenuDados() {
-  document.getElementById('modalMenuDados').style.display = 'none';
+    document.getElementById('modalMenuDados').style.display = 'none';
 }
 
 function exportarExcel() {

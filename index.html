@@ -1577,34 +1577,23 @@
                 </div>
             </div>
         </div>
-        <!-- ===== MODAL: IMPORTAR E EXPORTAR BANCO DE DADOS ===== -->
         <div id="modalMenuDados" class="modal" style="display:none;">
-            <div class="modal-content menu-dados-content">
-
+            <div class="modal-content" style="max-width:350px; text-align:center;">
                 <h3>📁 Gerenciar Dados</h3>
 
-                <button class="menu-dados-btn exportar" onclick="fecharMenuDados(); abrirExportar();">
+                <button class="info" onclick="fecharMenuDados(); abrirExportar();" style="width:100%; margin:10px 0;">
                     📥 Exportar Dados
                 </button>
 
-                <button class="menu-dados-btn importar" onclick="fecharMenuDados(); abrirImportar();">
+                <button class="warning" onclick="fecharMenuDados(); abrirImportar();"
+                    style="width:100%; margin:10px 0;">
                     📤 Importar Dados
                 </button>
 
-                <button class="menu-dados-btn fechar" onclick="fecharMenuDados();">
-                    ✖ Fechar
+                <button class="secondary" onclick="fecharMenuDados()" style="width:100%; margin-top:10px;">
+                    Fechar
                 </button>
-
             </div>
-        </div>
-
-        <div id="telaCarregamento">
-            <div class="loader-container">
-                <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Teste"
-                    class="loader-logo">
-                <div class="loader-circulo"></div>
-            </div>
-            <p>Carregando D.Sync...</p>
         </div>
 
         <div class="toast" id="toast"></div>
