@@ -2788,7 +2788,7 @@ body.dark-mode .scanner-produto-info.erro {
         width: 100%;
         table-layout: fixed;
         font-size: 11px;
-        padding: 5px;
+        padding: 2px;
     }
 
     .tabela-carga th,
