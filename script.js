@@ -456,10 +456,16 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }).catch((erro) => {
       console.error('Erro ao verificar sessão:', erro);
+      document.getElementById('telaCarregamento').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('appContent').style.display = 'none';
     });
 
   } else {
     console.error('Supabase ainda não foi carregado.');
+    document.getElementById('telaCarregamento').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('appContent').style.display = 'none';
   }
 });
 
