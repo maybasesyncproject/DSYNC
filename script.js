@@ -418,9 +418,10 @@ document.addEventListener('keydown', function (e) {
 document.addEventListener('DOMContentLoaded', function () {
   console.log('🚀 Inicializando D.Sync...');
 
-  // Oculta as telas enquanto verifica a sessão
-document.getElementById('loginScreen').style.display = 'none';
-document.getElementById('appContent').style.display = 'none';
+  // CARREGA LOGO ENQUANTO VERIFICA SESSÃO
+  document.getElementById('telaCarregamento').style.display = 'flex';
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appContent').style.display = 'none';
 
   carregarDados();
   carregarInsumos();
@@ -448,8 +449,10 @@ document.getElementById('appContent').style.display = 'none';
         entrarApp();
 
       } else {
+        document.getElementById('telaCarregamento').style.display = 'none';
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('appContent').style.display = 'none';
+
       }
     }).catch((erro) => {
       console.error('Erro ao verificar sessão:', erro);
@@ -861,6 +864,7 @@ async function carregarDaNuvem() {
 // ===== ENTRAR NO APP =====
 
 async function entrarApp() {
+  document.getElementById('telaCarregamento').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appContent').style.display = 'block';
 
@@ -3384,11 +3388,11 @@ function importarDados() {
 }
 
 function abrirMenuDados() {
-    document.getElementById('modalMenuDados').style.display = 'flex';
+  document.getElementById('modalMenuDados').style.display = 'flex';
 }
 
 function fecharMenuDados() {
-    document.getElementById('modalMenuDados').style.display = 'none';
+  document.getElementById('modalMenuDados').style.display = 'none';
 }
 
 function exportarExcel() {

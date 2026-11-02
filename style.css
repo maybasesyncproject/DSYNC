@@ -2542,6 +2542,60 @@ body.dark-mode .tabela-carga tr.pendente {
 }
 
 /* ============================================================
+  TELA CARREGAMENTO
+   ============================================================ */
+
+#telaCarregamento {
+    position: fixed;
+    inset: 0;
+    background: #f5f7fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    gap: 25px;
+}
+
+.loader-container {
+    width: 120px;
+    height: 120px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loader-logo {
+    width: 75px;
+    height: 75px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.loader-circulo {
+    position: absolute;
+    inset: 0;
+    border: 4px solid #dce3ed;
+    border-top-color: #2563eb;
+    border-right-color: #2563eb;
+    border-radius: 50%;
+    animation: girarLoader 1s linear infinite;
+}
+
+#telaCarregamento p {
+    color: #1a2b4c;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+@keyframes girarLoader {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================================
    QR CODE + SCANNER FLUTUANTE + SCANNER DE PRODUTO
    ============================================================ */
 
@@ -2783,4 +2837,49 @@ body.dark-mode .scanner-produto-info.erro {
     color: var(--primary);
 }
 
-abbr
+/* MENU IMPORTAR E EXPORTAR */
+.menu-dados-content {
+    width: 100%;
+    max-width: 380px;
+    padding: 25px;
+    border-radius: 16px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.menu-dados-content h3 {
+    margin: 0 0 22px;
+    color: var(--text);
+    font-size: 19px;
+}
+
+.menu-dados-btn {
+    display: block;
+    width: 100%;
+    padding: 13px 16px;
+    margin: 12px 0;
+    border: none;
+    border-radius: 9px;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, filter 0.2s;
+}
+
+.menu-dados-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+}
+
+.menu-dados-btn.exportar {
+    background: #2878c7;
+}
+
+.menu-dados-btn.importar {
+    background: #d99022;
+}
+
+.menu-dados-btn.fechar {
+    background: #64748b;
+}
