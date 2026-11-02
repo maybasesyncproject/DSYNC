@@ -2785,9 +2785,10 @@ body.dark-mode .scanner-produto-info.erro {
 
 @media (max-width: 768px) {
     .tabela-carga {
-        width: 80%;
+        width: 100%;
         table-layout: fixed;
         font-size: 11px;
+        padding: 5px;
     }
 
     .tabela-carga th,
