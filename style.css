@@ -62,6 +62,7 @@ body.tab-dashboard {
     --primary: #1A2B4C;
     --primary-light: #2a4070;
     --primary-dark: #0f1c33;
+    background-image: var(--bg-image);
 }
 
 body.tab-estoque {
@@ -127,11 +128,6 @@ body.tab-usuarios {
 
 body {
     background: var(--bg);
-    background-image: var(--bg-image);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
     color: var(--text);
     padding: 16px;
     min-height: 100vh;
