@@ -418,14 +418,26 @@ document.addEventListener('keydown', function (e) {
 document.addEventListener('DOMContentLoaded', function () {
   console.log('🚀 Inicializando D.Sync...');
 
-  // CARREGA LOGO ENQUANTO VERIFICA SESSÃO
-  document.getElementById('telaCarregamento').style.display = 'flex';
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('appContent').style.display = 'none';
+  console.log('ETAPA 1 - DOM carregado');
+
+  const tela = document.getElementById('telaCarregamento');
+  console.log('ETAPA 2 - Tela:', tela);
+
+  const login = document.getElementById('loginScreen');
+  console.log('ETAPA 3 - Login:', login);
+
+  const app = document.getElementById('appContent');
+  console.log('ETAPA 4 - App:', app);
+
+  tela.style.display = 'flex';
+
+  console.log('ETAPA 5 - Tela de carregamento exibida');
 
   carregarDados();
   carregarInsumos();
   carregarPedidoCarga();
+
+  console.log('ETAPA 6 - Dados locais carregados');
 
   // Recupera sessão do Supabase
   if (window.supabase?.auth) {
