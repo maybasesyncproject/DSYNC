@@ -41,6 +41,7 @@
     --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+
 body.dark-mode {
     --bg: #0a0e1a;
     --bg-card: #131826;
@@ -62,7 +63,6 @@ body.tab-dashboard {
     --primary: #1A2B4C;
     --primary-light: #2a4070;
     --primary-dark: #0f1c33;
-    background-image: var(--bg-image);
 }
 
 body.tab-estoque {
@@ -124,6 +124,7 @@ body.tab-usuarios {
     font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-image: var(--bg-image);
 }
 
 body {
