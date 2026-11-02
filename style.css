@@ -130,6 +130,9 @@ body.tab-usuarios {
 body {
     background: var(--bg);
     background-image: var(--bg-image);
+    background-size: cover;
+    background-position: center;
+    background-repeat: repeat-x;
     color: var(--text);
     padding: 16px;
     min-height: 100vh;
