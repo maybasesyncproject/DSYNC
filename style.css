@@ -131,8 +131,7 @@ body.tab-usuarios {
 body {
     background: var(--bg);
     background-image: url('/DSYNC/logoDS.png') !important;
-    background-position: center;
-    background-size:auto;
+    background-size: 200px 200px;
     color: var(--text);
     padding: 16px;
     min-height: 100vh;
