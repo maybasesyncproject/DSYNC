@@ -130,6 +130,10 @@ body.tab-usuarios {
 
 body {
     background: var(--bg);
+    background-image: url('/DSYNC/logoDS.png') !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
     color: var(--text);
     padding: 16px;
     min-height: 100vh;
@@ -149,10 +153,6 @@ body:not(.dark-mode) {
 .container {
     max-width: 1440px;
     margin: 0 auto;
-    background-image: url('/DSYNC/logoDS.png');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
 }
 
 ::-webkit-scrollbar {
