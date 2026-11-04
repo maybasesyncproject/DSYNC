@@ -24,6 +24,7 @@
     --bg-elevated: #ffffff;
     --bg-subtle: #f8fafc;  
     --bg-image: url("/DSYNC/logoDS.png");
+    --bg-image-gif: url("/DSYNC/logoDS.gif");
     --text: #0f172a;
     --text-secondary: #475569;
     --text-muted: #94a3b8;
@@ -143,10 +144,10 @@ body::before {
     content: "";
     position: fixed;
     inset: 0;
-    background-image: var(--bg-image);
-    background-repeat: repeat;
-    background-size: 150px 150px;
-    background-position: top left;
+    background-image: var(--bg-image-gif);
+background-repeat: no-repeat;
+    background-size: 300px auto;
+    background-position: center center;
     opacity: 0.25;
     pointer-events: none;
     z-index: -1;
