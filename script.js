@@ -5367,7 +5367,7 @@ function renderizarConferencia() {
       status = `⚠️ Faltam ${esperado - recebido}`;
       cor = '#D97706';
     } else if (informado && recebido > esperado) {
-      status = `📦➕ ${recebido - esperado} acima do pedido`;
+      status = `<i class="fa-solid fa-boxes-stacked"></i> ${recebido - esperado} acima do pedido`;
        cor = '#2563EB';
     }
 
