@@ -187,7 +187,7 @@
     </div>
 
     <!-- ===== APP ===== -->
-    <div id="appContent" style="display: none">
+    <div id="appContent" style="display: none" background-image="url('/DSYNC/logoDS.png')">
         <div class="container">
             <!-- HEADER -->
             <div class="header">
@@ -627,9 +627,11 @@
                         <button class="sub-tab" data-subaba="finalizado" onclick="mostrarSubAba('finalizado')">
                             ✅ Finalizado
                         </button>
-
                         <button class="sub-tab" data-subaba="carga" onclick="mostrarSubAba('carga')">
                             🚛 Carga
+                        </button>
+                        <button class="sub-tab" data-subaba="conferencia" onclick="mostrarSubAba('conferencia')">
+                            📦 Conferência
                         </button>
                     </div>
 
@@ -948,6 +950,16 @@
                         </div>
                         <div id="pedidoCargaContainer"></div>
                         <div id="cargaContainer" style="display:none !important;"></div>
+                        <!-- ===== CONFERÊNCIA DE CARGA ===== -->
+                        <div id="sub-tab-conferencia" class="sub-tab-content">
+                            <div class="controls">
+                                <button class="info" onclick="renderizarConferencia()">
+                                    🔄 Atualizar
+                                </button>
+                            </div>
+
+                            <div id="conferenciaContainer"></div>
+                        </div>
                     </div>
                 </div>
             </div>

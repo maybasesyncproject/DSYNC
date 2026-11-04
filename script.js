@@ -419,8 +419,8 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('🚀 Inicializando D.Sync...');
 
   // Oculta as telas enquanto verifica a sessão
-document.getElementById('loginScreen').style.display = 'none';
-document.getElementById('appContent').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appContent').style.display = 'none';
 
   carregarDados();
   carregarInsumos();
@@ -3384,11 +3384,11 @@ function importarDados() {
 }
 
 function abrirMenuDados() {
-    document.getElementById('modalMenuDados').style.display = 'flex';
+  document.getElementById('modalMenuDados').style.display = 'flex';
 }
 
 function fecharMenuDados() {
-    document.getElementById('modalMenuDados').style.display = 'none';
+  document.getElementById('modalMenuDados').style.display = 'none';
 }
 
 function exportarExcel() {
@@ -3541,6 +3541,7 @@ function mostrarSubAba(subAba) {
   else if (subAba === 'separar') atualizarListasPedidos();
   else if (subAba === 'finalizado') atualizarListasPedidos();
   else if (subAba === 'carga') { montarPedidoCarga(); atualizarPedidoCarga(); }
+  else if (subAba === 'conferencia') { renderizarConferencia(); }
   else if (subAba === 'injecao') renderizarInjecao();
   else if (subAba === 'injetar') renderizarInjetar();
   else if (subAba === 'injetando') renderizarInjetando();
@@ -5231,7 +5232,392 @@ function cancelarPedidoCarga() {
   atualizarDashboard();
   mostrarToast('🗑️ Pedido cancelado!', 'warning');
 }
+// ============================================================
+// CONFERÊNCIA DE CARGA
+// ============================================================
 
+let html5QrCodeConferencia = null;
+let produtoConferenciaSelecionadoId = null;
+let processandoLeituraConferencia = false;
+
+// Renderiza a tela
+function renderizarConferencia() {
+  const container = document.getElementById('conferenciaContainer');
+  if (!container) return;
+
+  const pedido = state.pedidoCargaAtual;
+
+  if (!pedido || !pedido.ativo) {
+    container.innerHTML = `
+            <div class="pedido-carga-wrap" style="text-align:center;padding:30px;">
+                <h3>📦 Conferência de Carga</h3>
+                <p style="color:var(--text-muted);margin-top:15px;">
+                    Nenhum pedido de carga ativo.
+                </p>
+                <button class="btn btn-md btn-info"
+                    onclick="mostrarSubAba('carga')">
+                    🚛 Ir para Carga
+                </button>
+            </div>`;
+    return;
+  }
+
+  const itens = Object.values(pedido.itens || {});
+
+  const conferidos = itens.filter(i =>
+    i.quantidadeRecebida !== undefined &&
+    Number(i.quantidadeRecebida) === Number(i.quantidadePedida)
+  ).length;
+
+  const divergentes = itens.filter(i =>
+    i.quantidadeRecebida !== undefined &&
+    Number(i.quantidadeRecebida) !== Number(i.quantidadePedida)
+  ).length;
+
+  const pendentes = itens.length - conferidos - divergentes;
+
+  const itemSelecionado = produtoConferenciaSelecionadoId
+    ? pedido.itens[produtoConferenciaSelecionadoId]
+    : null;
+
+  let tabela = '';
+
+  itens.forEach(item => {
+    const informado = item.quantidadeRecebida !== undefined;
+    const recebido = Number(item.quantidadeRecebida || 0);
+    const esperado = Number(item.quantidadePedida || 0);
+
+    let status = '⏳ Aguardando conferência';
+    let cor = 'var(--text-muted)';
+
+    if (informado && recebido === esperado) {
+      status = '✅ OK — Conferido';
+      cor = 'var(--success)';
+    } else if (informado && recebido < esperado) {
+      status = `⚠️ Faltam ${esperado - recebido}`;
+      cor = 'var(--warning)';
+    } else if (informado && recebido > esperado) {
+      status = `⚠️ ${recebido - esperado} acima do pedido`;
+      cor = 'var(--info)';
+    }
+
+    tabela += `
+            <tr>
+                <td>
+                    <strong>${item.nome}</strong>
+                    <br>
+                    <small>${item.codigoInterno || ''}</small>
+                </td>
+                <td>${esperado}</td>
+                <td>${informado ? recebido : '-'}</td>
+                <td style="color:${cor};font-weight:600;">
+                    ${status}
+                </td>
+                <td>
+                    <button class="btn btn-xs btn-info"
+                        onclick="selecionarProdutoConferencia('${item.produtoId}')">
+                        ✏️ Conferir
+                    </button>
+                </td>
+            </tr>`;
+  });
+
+  container.innerHTML = `
+        <div class="pedido-carga-wrap">
+
+            <h3>📦 Conferência: ${pedido.codigo}</h3>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">${itens.length}</div>
+                    <div class="stat-label">Total de Produtos</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-number" style="color:var(--success)">
+                        ${conferidos}
+                    </div>
+                    <div class="stat-label">OK — Conferidos</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-number" style="color:var(--warning)">
+                        ${pendentes}
+                    </div>
+                    <div class="stat-label">Pendentes</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-number" style="color:var(--danger)">
+                        ${divergentes}
+                    </div>
+                    <div class="stat-label">Com Divergência</div>
+                </div>
+            </div>
+
+            <div style="margin:20px 0;padding:20px;background:var(--bg-secondary,var(--bg));border:1px solid var(--border);border-radius:10px;">
+
+                <h3>🔎 Identificar Produto</h3>
+
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
+
+                    <input
+                        type="text"
+                        id="codigoConferenciaInput"
+                        placeholder="Digite ou escaneie o código..."
+                        onkeydown="if(event.key==='Enter'){event.preventDefault();buscarCodigoConferencia();}"
+                        style="flex:1;min-width:180px;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);"
+                    >
+
+                    <button class="btn btn-md btn-info"
+                        onclick="buscarCodigoConferencia()">
+                        🔍 Buscar
+                    </button>
+
+                    <button class="btn btn-md btn-primary"
+                        onclick="iniciarCameraConferencia()">
+                        📷 Escanear
+                    </button>
+
+                </div>
+
+                <div id="conferenciaReader"
+                    style="display:none;width:100%;max-width:500px;margin:15px auto;">
+                </div>
+
+                <button id="btnPararCameraConferencia"
+                    class="btn btn-md btn-danger"
+                    style="display:none;margin:10px auto;"
+                    onclick="pararCameraConferencia()">
+                    ✖ Fechar câmera
+                </button>
+
+                <div id="produtoConferenciaSelecionado"
+                    style="margin-top:15px;">
+
+                    ${itemSelecionado ? `
+                        <div style="padding:15px;border:1px solid var(--success);border-radius:8px;">
+                            <h3>${itemSelecionado.nome}</h3>
+
+                            <p style="margin:10px 0;">
+                                Código: ${itemSelecionado.codigoInterno || '-'}
+                            </p>
+
+                            <p>
+                                <strong>Quantidade pedida:</strong>
+                                <strong>${itemSelecionado.quantidadePedida}</strong>
+                            </p>
+
+                            <label style="display:block;margin-top:15px;font-weight:600;">
+                                Quantidade recebida:
+                            </label>
+
+                            <input
+                                type="number"
+                                id="quantidadeRecebidaConferencia"
+                                min="0"
+                                step="1"
+                                value="${itemSelecionado.quantidadeRecebida ?? ''}"
+                                placeholder="Digite a quantidade recebida"
+                                style="width:100%;padding:12px;margin-top:8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);"
+                            >
+
+                            <button class="btn btn-md btn-success"
+                                style="margin-top:15px;width:100%;"
+                                onclick="confirmarQuantidadeConferencia()">
+                                ✅ Confirmar Recebimento
+                            </button>
+                        </div>
+                    ` : `
+                        <p style="color:var(--text-muted);">
+                            Identifique um produto para iniciar a conferência.
+                        </p>
+                    `}
+
+                </div>
+            </div>
+
+            <h3 style="margin:20px 0;">📋 Produtos da Conferência</h3>
+
+            <div style="overflow-x:auto;">
+                <table class="tabela-carga">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Pedida</th>
+                            <th>Recebida</th>
+                            <th>Status</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tabela || `
+                            <tr>
+                                <td colspan="5" style="text-align:center;">
+                                    Nenhum produto na carga.
+                                </td>
+                            </tr>
+                        `}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>`;
+}
+
+// Seleciona produto pela lista
+function selecionarProdutoConferencia(produtoId) {
+  if (!state.pedidoCargaAtual?.itens?.[produtoId]) return;
+
+  produtoConferenciaSelecionadoId = produtoId;
+  renderizarConferencia();
+}
+
+// Busca código digitado ou escaneado
+function buscarCodigoConferencia() {
+  const campo = document.getElementById('codigoConferenciaInput');
+  const codigo = String(campo?.value || '').trim().toUpperCase();
+
+  if (!codigo) {
+    mostrarToast('Digite ou escaneie um código!', 'warning');
+    return;
+  }
+
+  const produto = state.produtos.find(p =>
+    String(p.codigoInterno || '').trim().toUpperCase() === codigo ||
+    String(p.barcode || '').trim().toUpperCase() === codigo
+  );
+
+  if (!produto) {
+    mostrarToast('❌ Produto não encontrado!', 'error');
+    return;
+  }
+
+  const item = state.pedidoCargaAtual?.itens?.[produto.id];
+
+  if (!item) {
+    mostrarToast('⚠️ Este produto não pertence à carga atual!', 'warning');
+    return;
+  }
+
+  produtoConferenciaSelecionadoId = produto.id;
+  renderizarConferencia();
+
+  mostrarToast('✅ Produto identificado!', 'success');
+}
+
+// Confirma quantidade recebida
+function confirmarQuantidadeConferencia() {
+  const item = state.pedidoCargaAtual?.itens?.[produtoConferenciaSelecionadoId];
+
+  if (!item) {
+    mostrarToast('❌ Produto não selecionado!', 'error');
+    return;
+  }
+
+  const campo = document.getElementById('quantidadeRecebidaConferencia');
+  const quantidade = Number(campo?.value);
+
+  if (
+    campo?.value.trim() === '' ||
+    !Number.isInteger(quantidade) ||
+    quantidade < 0
+  ) {
+    mostrarToast('❌ Informe uma quantidade inteira válida!', 'error');
+    return;
+  }
+
+  const pedida = Number(item.quantidadePedida);
+
+  item.quantidadeRecebida = quantidade;
+  item.statusConferencia =
+    quantidade === pedida ? 'conferido' :
+      quantidade < pedida ? 'faltando' : 'acima';
+
+  item.dataConferencia = new Date().toISOString();
+
+  salvarPedidoCarga();
+
+  produtoConferenciaSelecionadoId = null;
+
+  renderizarConferencia();
+
+  mostrarToast(
+    quantidade === pedida
+      ? '✅ Produto conferido corretamente!'
+      : '⚠️ Conferência registrada com divergência!',
+    quantidade === pedida ? 'success' : 'warning'
+  );
+}
+
+// Inicia câmera
+async function iniciarCameraConferencia() {
+  const reader = document.getElementById('conferenciaReader');
+  if (!reader) return;
+
+  if (typeof Html5Qrcode === 'undefined') {
+    mostrarToast('Biblioteca de leitura não encontrada!', 'error');
+    return;
+  }
+
+  reader.innerHTML = '';
+  reader.style.display = 'block';
+
+  document.getElementById('btnPararCameraConferencia').style.display = 'block';
+
+  try {
+    html5QrCodeConferencia = new Html5Qrcode('conferenciaReader');
+    processandoLeituraConferencia = false;
+
+    await html5QrCodeConferencia.start(
+      { facingMode: 'environment' },
+      {
+        fps: 15,
+        qrbox: { width: 250, height: 120 }
+      },
+      (codigo) => {
+        if (processandoLeituraConferencia) return;
+
+        processandoLeituraConferencia = true;
+
+        const campo = document.getElementById('codigoConferenciaInput');
+        if (campo) campo.value = codigo;
+
+        buscarCodigoConferencia();
+        pararCameraConferencia();
+      },
+      () => { }
+    );
+
+  } catch (erro) {
+    console.error('Erro na câmera de conferência:', erro);
+    mostrarToast('Não foi possível iniciar a câmera!', 'error');
+    pararCameraConferencia();
+  }
+}
+
+// Fecha câmera
+function pararCameraConferencia() {
+  if (!html5QrCodeConferencia) return;
+
+  const scanner = html5QrCodeConferencia;
+
+  html5QrCodeConferencia = null;
+
+  scanner.stop()
+    .then(() => scanner.clear())
+    .catch(erro => console.warn('Erro ao fechar câmera:', erro))
+    .finally(() => {
+      const reader = document.getElementById('conferenciaReader');
+      if (reader) {
+        reader.style.display = 'none';
+        reader.innerHTML = '';
+      }
+
+      const botao = document.getElementById('btnPararCameraConferencia');
+      if (botao) botao.style.display = 'none';
+    });
+}
 // ============================================================
 // AUXILIARES
 // ============================================================

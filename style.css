@@ -125,12 +125,11 @@ body.tab-usuarios {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     
+    
 }
 
 body {
     background: var(--bg);
-    background-image: var(--bg-image);
-    background-size: cover;
     color: var(--text);
     padding: 16px;
     min-height: 100vh;
