@@ -149,6 +149,7 @@ body:not(.dark-mode) {
 }
 
 .container {
+    background: var(--bg) !important;
     max-width: 1440px;
     margin: 0 auto;
 }
