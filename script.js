@@ -4921,7 +4921,7 @@ function montarPedidoCarga() {
   } else {
     renderizarCargaAtiva();
   }
-   // Mantém os indicadores visíveis mesmo sem pedido ativo
+  // Mantém os indicadores visíveis mesmo sem pedido ativo
   atualizarTotaisPedidoCarga();
 }
 
@@ -4969,8 +4969,8 @@ function renderizarCargaAtiva() {
           style="flex:2;min-width:200px;">
           <option value="">Selecione o produto...</option>
           ${state.produtos.map(p =>
-            `<option value="${p.id}">${p.nome}</option>`
-          ).join('')}
+    `<option value="${p.id}">${p.nome}</option>`
+  ).join('')}
         </select>
 
         <input type="number"
@@ -4987,9 +4987,9 @@ function renderizarCargaAtiva() {
 
       <div id="pedidoCargaLista" class="pedido-carga-lista">
         ${temItens
-          ? renderizarTabelaCargaAtiva(itens)
-          : '<div style="text-align:center;padding:30px;color:var(--text-muted);">📦 Nenhum produto no pedido. Adicione acima.</div>'
-        }
+      ? renderizarTabelaCargaAtiva(itens)
+      : '<div style="text-align:center;padding:30px;color:var(--text-muted);">📦 Nenhum produto no pedido. Adicione acima.</div>'
+    }
       </div>
 
     </div>
@@ -5055,11 +5055,6 @@ function renderizarTotaisCarga(itens) {
         <div class="total-label">Prateleiras selecionadas</div>
       </div>
 
-      <div class="total-box">
-        <div class="total-numero">${tp}</div>
-        <div class="total-label">Produtos</div>
-      </div>
-
       <div class="total-box reservado">
         <div class="total-numero">${tReservado}</div>
         <div class="total-label">Reservado</div>
@@ -5077,6 +5072,10 @@ function renderizarTotaisCarga(itens) {
         <div class="total-label">Falta</div>
       </div>
 
+      <div class="total-box">
+        <div class="total-numero">${tp}</div>
+        <div class="total-label">Produtos</div>
+      </div>
     </div>
 
     ${completo
@@ -5368,7 +5367,7 @@ function renderizarConferencia() {
       cor = '#D97706';
     } else if (informado && recebido > esperado) {
       status = `📦📦 ${recebido - esperado} acima do pedido`;
-       cor = '#2563EB';
+      cor = '#2563EB';
     }
 
     tabela += `
