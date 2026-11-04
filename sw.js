@@ -14,6 +14,7 @@ const ASSETS = [
   BASE_PATH + 'js/core.js',
   BASE_PATH + 'js/carga.js',
   BASE_PATH + 'js/insumos.js',
+  BASE_PATH + 'js/auth.js',
   BASE_PATH + 'assets/images/logoDS.png',
   BASE_PATH + 'assets/images/logoDS.gif',
   BASE_PATH + 'manifest.json'
