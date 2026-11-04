@@ -2,7 +2,7 @@
 // D.Sync - SISTEMA COMPLETO COM SUPABASE + SCANNERS
 // ============================================================
 
-export const state = {
+const state = {
   produtos: [],
   prateleiras: [],
   carga: [],
@@ -44,7 +44,7 @@ export const state = {
 
 const CARGA_PEDIDO_TAG = '__carga__';
 
-export const STORAGE_KEYS = {
+const STORAGE_KEYS = {
   produtos: 'produtos', prateleiras: 'prateleiras', carga: 'carga',
   historico: 'historico', usuarios: 'usuarios', sessao: 'sessao',
   tema: 'theme', limiteBaixo: 'limiteBaixo', limiteCritico: 'limiteCritico',
@@ -316,7 +316,7 @@ async function salvarNaNuvem() {
 let temporizadorSalvamento = null;
 let salvamentoEmAndamento = false;
 let salvamentoPendente = false;
-export let dadosCompartilhadosCarregados = false;
+let dadosCompartilhadosCarregados = false;
 
 
 function agendarSalvamentoNuvem() {

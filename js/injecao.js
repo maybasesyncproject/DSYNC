@@ -1,5 +1,3 @@
-const { STORAGE_KEYS, state, dadosCompartilhadosCarregados } = require("./script");
-
 // ===== VÍNCULOS DE INJEÇÃO E 40x50 =====
 function autoDetectarVinculo(nome) {
   if (!nome) return '';
