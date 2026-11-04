@@ -2471,26 +2471,7 @@ function carregarCarga() {
 
     c.innerHTML = html;
 
-    const elProdutos = document.getElementById('totalCargaProdutos');
-    const elItens = document.getElementById('totalCargaItens');
-
-    if (elProdutos) {
-      elProdutos.textContent = state.carga.filter(item =>
-        state.produtos.some(p => p.id === item.id)
-      ).length;
-    }
-
-    if (elItens) {
-      elItens.textContent = total;
-    }
-
-    console.log('[CARGA] Renderização concluída:', {
-      reservasNoEstado: state.carga.length,
-      produtosRenderizados: quantidadeRenderizada,
-      totalItens: total,
-      htmlGerado: c.innerHTML.length,
-      containerVisivel: c.offsetParent !== null
-    });
+    atualizarTotaisPedidoCarga();
 
   } catch (erro) {
     console.error('[CARGA] ERRO durante a execução:', erro);
@@ -4940,6 +4921,8 @@ function montarPedidoCarga() {
   } else {
     renderizarCargaAtiva();
   }
+   // Mantém os indicadores visíveis mesmo sem pedido ativo
+  atualizarTotaisPedidoCarga();
 }
 
 function criarPedidoCarga() {
@@ -4950,36 +4933,72 @@ function criarPedidoCarga() {
   mostrarToast(`✅ Pedido ${codigo} criado!`, 'success');
 }
 
+
 function renderizarCargaAtiva() {
   const c = document.getElementById('pedidoCargaContainer');
   if (!c) return;
+
   const itens = state.pedidoCargaAtual.itens || {};
   const temItens = Object.keys(itens).length > 0;
+
   c.innerHTML = `
     <div class="pedido-carga-wrap">
+
       <div class="pedido-carga-header">
-        <h3>🚛 Pedido de Carga: <span class="pedido-carga-codigo">${state.pedidoCargaAtual.codigo}</span></h3>
+        <h3>🚛 Pedido de Carga:
+          <span class="pedido-carga-codigo">
+            ${state.pedidoCargaAtual.codigo}
+          </span>
+        </h3>
+
         <div class="pedido-carga-actions">
-          <button class="btn btn-md btn-success" onclick="finalizarPedidoCargaCompleto()">✅ Finalizar Pedido</button>
-          <button class="btn btn-md btn-danger" onclick="cancelarPedidoCarga()">🗑️ Cancelar</button>
+          <button class="btn btn-md btn-success"
+            onclick="finalizarPedidoCargaCompleto()">
+            ✅ Finalizar Pedido
+          </button>
+
+          <button class="btn btn-md btn-danger"
+            onclick="cancelarPedidoCarga()">
+            🗑️ Cancelar
+          </button>
         </div>
       </div>
+
       <div class="pedido-carga-add">
-        <select id="produtoPedidoCargaSelect" style="flex:2;min-width:200px;">
+        <select id="produtoPedidoCargaSelect"
+          style="flex:2;min-width:200px;">
           <option value="">Selecione o produto...</option>
-          ${state.produtos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('')}
+          ${state.produtos.map(p =>
+            `<option value="${p.id}">${p.nome}</option>`
+          ).join('')}
         </select>
-        <input type="number" id="qtdPedidoCarga" placeholder="Qtd (cx)" min="1" style="flex:1;min-width:100px;">
-        <button class="btn btn-md btn-info" onclick="adicionarProdutoPedidoCarga()">➕ Adicionar ao Pedido</button>
+
+        <input type="number"
+          id="qtdPedidoCarga"
+          placeholder="Qtd (cx)"
+          min="1"
+          style="flex:1;min-width:100px;">
+
+        <button class="btn btn-md btn-info"
+          onclick="adicionarProdutoPedidoCarga()">
+          ➕ Adicionar ao Pedido
+        </button>
       </div>
+
       <div id="pedidoCargaLista" class="pedido-carga-lista">
-        ${temItens ? renderizarTabelaCargaAtiva(itens) : '<div style="text-align:center;padding:30px;color:var(--text-muted);">📦 Nenhum produto no pedido. Adicione acima.</div>'}
+        ${temItens
+          ? renderizarTabelaCargaAtiva(itens)
+          : '<div style="text-align:center;padding:30px;color:var(--text-muted);">📦 Nenhum produto no pedido. Adicione acima.</div>'
+        }
       </div>
-      <div id="pedidoCargaResumo" style="margin-top:20px;display:${temItens ? 'block' : 'none'};">
-        <div id="pedidoCargaTotais">${temItens ? renderizarTotaisCarga(itens) : ''}</div>
-      </div>
-    </div>`;
+
+    </div>
+  `;
+
+  // Atualiza o único container de indicadores
+  atualizarTotaisPedidoCarga();
 }
+
 
 function renderizarTabelaCargaAtiva(itens) {
   let h = '<table class="tabela-carga"><thead><tr><th>Produto</th><th>Pedida</th><th>Reservado</th><th>Produzido</th><th>Falta</th><th>Ações</th></tr></thead><tbody>';
@@ -5006,25 +5025,76 @@ function renderizarTabelaCargaAtiva(itens) {
   return h;
 }
 
+
 function renderizarTotaisCarga(itens) {
-  let tp = 0, tReservado = 0, tProduzido = 0, tFalta = 0;
+  let tp = 0;
+  let tReservado = 0;
+  let tProduzido = 0;
+  let tFalta = 0;
+
   Object.values(itens).forEach(i => {
     tp++;
+
     tReservado += getReservadoCargaAtual(i.produtoId);
     tProduzido += i.quantidadeProduzida || 0;
     tFalta += getFaltaCargaAtual(i);
   });
+
+  // Mantém a contagem do antigo Produtos na Carga
+  const prateleirasSelecionadas = state.carga.filter(item =>
+    state.produtos.some(p => p.id === item.id)
+  ).length;
+
   const completo = tFalta === 0 && tp > 0;
+
   return `
     <div class="pedido-carga-totais">
-      <div class="total-box"><div class="total-numero">${tp}</div><div class="total-label">Produtos</div></div>
-      <div class="total-box reservado"><div class="total-numero">${tReservado}</div><div class="total-label">Reservado</div></div>
-      <div class="total-box produzido"><div class="total-numero">${tProduzido}</div><div class="total-label">Produzido</div></div>
-      <div class="total-box ${completo ? 'completo' : 'falta'}"><div class="total-numero">${completo ? '✅ 0' : tFalta}</div><div class="total-label">Falta</div></div>
+
+      <div class="total-box">
+        <div class="total-numero">${prateleirasSelecionadas}</div>
+        <div class="total-label">Prateleiras selecionadas</div>
+      </div>
+
+      <div class="total-box">
+        <div class="total-numero">${tp}</div>
+        <div class="total-label">Produtos</div>
+      </div>
+
+      <div class="total-box reservado">
+        <div class="total-numero">${tReservado}</div>
+        <div class="total-label">Reservado</div>
+      </div>
+
+      <div class="total-box produzido">
+        <div class="total-numero">${tProduzido}</div>
+        <div class="total-label">Produzido</div>
+      </div>
+
+      <div class="total-box ${completo ? 'completo' : 'falta'}">
+        <div class="total-numero">
+          ${completo ? '✅ 0' : tFalta}
+        </div>
+        <div class="total-label">Falta</div>
+      </div>
+
     </div>
-    ${completo ? '<div class="aviso-completo">🎉 PEDIDO COMPLETO! Clique em "Finalizar Pedido" para baixar das prateleiras.</div>' : ''}
+
+    ${completo
+      ? '<div class="aviso-completo">🎉 PEDIDO COMPLETO! Clique em "Finalizar Pedido" para baixar das prateleiras.</div>'
+      : ''
+    }
   `;
 }
+
+function atualizarTotaisPedidoCarga() {
+  const container = document.getElementById('pedidoCargaTotais');
+  if (!container) return;
+
+  const itens = state.pedidoCargaAtual?.itens || {};
+
+  container.innerHTML = renderizarTotaisCarga(itens);
+}
+
 
 function atualizarPedidoCarga() {
   if (
@@ -5288,17 +5358,17 @@ function renderizarConferencia() {
     const esperado = Number(item.quantidadePedida || 0);
 
     let status = '⏳ Aguardando conferência';
-    let cor = 'var(--text-muted)';
+    let cor = '#64748B';
 
     if (informado && recebido === esperado) {
       status = '✅ OK — Conferido';
-      cor = 'var(--success)';
+      cor = '#16A34A'
     } else if (informado && recebido < esperado) {
       status = `⚠️ Faltam ${esperado - recebido}`;
-      cor = 'var(--warning)';
+      cor = '#D97706';
     } else if (informado && recebido > esperado) {
-      status = `⚠️ ${recebido - esperado} acima do pedido`;
-      cor = 'var(--info)';
+      status = `📦➕ ${recebido - esperado} acima do pedido`;
+       cor = '#2563EB';
     }
 
     tabela += `
@@ -5310,9 +5380,20 @@ function renderizarConferencia() {
                 </td>
                 <td>${esperado}</td>
                 <td>${informado ? recebido : '-'}</td>
-                <td style="color:${cor};font-weight:600;">
-                    ${status}
-                </td>
+                <td>
+    <span style="
+        display:inline-block;
+        background:${cor};
+        color:#FFFFFF;
+        padding:7px 12px;
+        border-radius:7px;
+        font-weight:600;
+        font-size:12px;
+        white-space:normal;
+    ">
+        ${status}
+    </span>
+</td>
                 <td>
                     <button class="btn btn-xs btn-info"
                         onclick="selecionarProdutoConferencia('${item.produtoId}')">
