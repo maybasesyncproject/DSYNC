@@ -143,11 +143,11 @@ body::before {
     content: "";
     position: fixed;
     inset: 0;
-    background-image: url('/DSYNC/logoDS.png');
+    background-image: var(--bg-image);
     background-repeat: repeat;
     background-size: 150px 150px;
     background-position: top left;
-    opacity: 0.15;
+    opacity: 0.25;
     pointer-events: none;
     z-index: -1;
 }
