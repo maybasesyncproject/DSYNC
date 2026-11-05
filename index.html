@@ -187,7 +187,7 @@
     </div>
 
     <!-- ===== APP ===== -->
-    <div id="appContent" style="display: none" >
+    <div id="appContent" style="display: none">
         <div class="container">
             <!-- HEADER -->
             <div class="header">
@@ -939,7 +939,7 @@
                         </div>
 
                         <!-- RESUMO ÚNICO DA CARGA -->
-<div id="pedidoCargaTotais"></div>
+                        <div id="pedidoCargaTotais"></div>
                         <div id="pedidoCargaContainer"></div>
                         <div id="cargaContainer" style="display:none !important;"></div>
 
@@ -1584,20 +1584,24 @@
         </div>
         <div id="modalMenuDados" class="modal" style="display:none;">
             <div class="modal-content" style="max-width:350px; text-align:center;">
-                <h3>📁 Gerenciar Dados</h3>
+                <div class="controls">
+                    <h3>📁 Gerenciar Dados</h3>
 
-                <button class="info" onclick="fecharMenuDados(); abrirExportar();" style="width:100%; margin:10px 0;">
-                    📥 Exportar Dados
-                </button>
+                    <button class="info" onclick="fecharMenuDados(); abrirExportar();"
+                        style="width:100%; margin:10px 0;">
+                        📥 Exportar Dados
+                    </button>
 
-                <button class="warning" onclick="fecharMenuDados(); abrirImportar();"
-                    style="width:100%; margin:10px 0;">
-                    📤 Importar Dados
-                </button>
+                    <button class="warning" onclick="fecharMenuDados(); abrirImportar();"
+                        style="width:100%; margin:10px 0;">
+                        📤 Importar Dados
+                    </button>
 
-                <button class="secondary" onclick="fecharMenuDados()" style="width:100%; margin-top:10px;">
-                    Fechar
-                </button>
+                    <button class="secondary" onclick="fecharMenuDados()" style="width:100%; margin-top:10px;">
+                        Fechar
+                    </button>
+                </div>
+
             </div>
         </div>
 
