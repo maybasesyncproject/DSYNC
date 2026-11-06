@@ -5018,18 +5018,18 @@ function imprimirEtiquetas() {
   }
 
   if (typeof QRCode === 'undefined') {
-    mostrarToast('Biblioteca de QR Code não carregada!', 'error');
+    mostrarToast('Biblioteca QRCode não carregada!', 'error');
     return;
   }
 
   const win = window.open('', '_blank');
 
   if (!win) {
-    mostrarToast('Permita pop-ups para imprimir as etiquetas.', 'warning');
+    mostrarToast('Permita pop-ups para imprimir!', 'warning');
     return;
   }
 
-  const escapar = texto => String(texto ?? '').replace(
+  const escapar = valor => String(valor ?? '').replace(
     /[&<>"']/g,
     c => ({
       '&': '&amp;',
@@ -5046,7 +5046,6 @@ function imprimirEtiquetas() {
     <head>
       <meta charset="UTF-8">
       <title>Etiquetas de Prateleiras</title>
-
       <style>
         body {
           font-family: Arial, sans-serif;
@@ -5083,31 +5082,16 @@ function imprimirEtiquetas() {
           font-weight: bold;
         }
 
-        .no-print {
-          margin-bottom: 20px;
-          padding: 10px 20px;
-          cursor: pointer;
-        }
-
         @media print {
-          .no-print {
-            display: none;
-          }
-
-          body {
-            margin: 10px;
-          }
+          .no-print { display: none; }
         }
       </style>
     </head>
-
     <body>
       <h2>Etiquetas de Prateleiras</h2>
-
       <button class="no-print" onclick="window.print()">
-        🖨️ Imprimir Etiquetas
+        Imprimir Etiquetas
       </button>
-
       <div class="etiquetas">
   `;
 
@@ -5134,15 +5118,18 @@ function imprimirEtiquetas() {
 
   state.prateleiras.forEach((p, i) => {
     const codigo = p.codigoBarras || gerarCodigoPrateleira(p.id);
+    const elemento = win.document.getElementById(`qr-${i}`);
 
-    new QRCode(win.document.getElementById(`qr-${i}`), {
-      text: codigo,
-      width: 120,
-      height: 120,
-      colorDark: '#000000',
-      colorLight: '#FFFFFF',
-      correctLevel: QRCode.CorrectLevel.M
-    });
+    if (elemento) {
+      new QRCode(elemento, {
+        text: codigo,
+        width: 120,
+        height: 120,
+        colorDark: '#000000',
+        colorLight: '#FFFFFF',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
   });
 }
 
