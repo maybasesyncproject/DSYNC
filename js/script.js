@@ -5008,27 +5008,144 @@ function atualizarCodigosPrateleiras() {
   if (alt) setData(STORAGE_KEYS.prateleiras, state.prateleiras);
 }
 
+
 function imprimirEtiquetas() {
   atualizarCodigosPrateleiras();
-  let html = `<html><head><title>Etiquetas</title><style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    .etiqueta { display: inline-block; border: 1px solid #000; padding: 15px; margin: 10px; text-align: center; width: 200px; }
-    .etiqueta .nome { font-weight: bold; font-size: 18px; }
-    @media print { .no-print { display: none; } }
-  </style></head><body>
-  <h2>Etiquetas de Prateleiras</h2>
-  <button class="no-print" onclick="window.print()">Imprimir</button><div>`;
-  state.prateleiras.forEach(p => {
-    const c = p.codigoBarras || gerarCodigoPrateleira(p.id);
-    html += `<div class="etiqueta"><div class="nome">${p.nome}</div>
-      <svg id="barcode-${p.id}"></svg><div>${c}</div></div>
-      <script>JsBarcode("#barcode-${p.id}", "${c}", {format:"CODE128", width:2, height:50, displayValue:false});<\/script>`;
-  });
-  html += '</div></body></html>';
+
+  if (!state.prateleiras || state.prateleiras.length === 0) {
+    mostrarToast('Nenhuma prateleira cadastrada!', 'warning');
+    return;
+  }
+
+  if (typeof QRCode === 'undefined') {
+    mostrarToast('Biblioteca de QR Code não carregada!', 'error');
+    return;
+  }
+
   const win = window.open('', '_blank');
+
+  if (!win) {
+    mostrarToast('Permita pop-ups para imprimir as etiquetas.', 'warning');
+    return;
+  }
+
+  const escapar = texto => String(texto ?? '').replace(
+    /[&<>"']/g,
+    c => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    })[c]
+  );
+
+  let html = `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8">
+      <title>Etiquetas de Prateleiras</title>
+
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          margin: 20px;
+        }
+
+        .etiquetas {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 15px;
+        }
+
+        .etiqueta {
+          border: 1px solid #000;
+          padding: 15px;
+          text-align: center;
+          break-inside: avoid;
+        }
+
+        .nome {
+          font-weight: bold;
+          font-size: 18px;
+          margin-bottom: 10px;
+        }
+
+        .qr {
+          display: flex;
+          justify-content: center;
+          margin: 10px auto;
+        }
+
+        .codigo {
+          font-size: 13px;
+          font-weight: bold;
+        }
+
+        .no-print {
+          margin-bottom: 20px;
+          padding: 10px 20px;
+          cursor: pointer;
+        }
+
+        @media print {
+          .no-print {
+            display: none;
+          }
+
+          body {
+            margin: 10px;
+          }
+        }
+      </style>
+    </head>
+
+    <body>
+      <h2>Etiquetas de Prateleiras</h2>
+
+      <button class="no-print" onclick="window.print()">
+        🖨️ Imprimir Etiquetas
+      </button>
+
+      <div class="etiquetas">
+  `;
+
+  state.prateleiras.forEach((p, i) => {
+    const codigo = p.codigoBarras || gerarCodigoPrateleira(p.id);
+
+    html += `
+      <div class="etiqueta">
+        <div class="nome">${escapar(p.nome)}</div>
+        <div id="qr-${i}" class="qr"></div>
+        <div class="codigo">${escapar(codigo)}</div>
+      </div>
+    `;
+  });
+
+  html += `
+      </div>
+    </body>
+    </html>
+  `;
+
   win.document.write(html);
   win.document.close();
+
+  state.prateleiras.forEach((p, i) => {
+    const codigo = p.codigoBarras || gerarCodigoPrateleira(p.id);
+
+    new QRCode(win.document.getElementById(`qr-${i}`), {
+      text: codigo,
+      width: 120,
+      height: 120,
+      colorDark: '#000000',
+      colorLight: '#FFFFFF',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  });
 }
+
 
 // ============================================================
 // MOVIMENTAÇÃO COM PRODUTO
