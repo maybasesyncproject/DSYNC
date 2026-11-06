@@ -6,6 +6,7 @@ const BASE_PATH = '/DSYNC/';
 const ASSETS = [
   BASE_PATH,
   BASE_PATH + 'index.html',
+  BASE_PATH + 'etiquetas.html',
   BASE_PATH + 'css/style.css',
   BASE_PATH + 'js/script.js',
   BASE_PATH + 'js/supabase.js',

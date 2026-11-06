@@ -5017,121 +5017,33 @@ function imprimirEtiquetas() {
     return;
   }
 
-  if (typeof QRCode === 'undefined') {
-    mostrarToast('Biblioteca QRCode não carregada!', 'error');
-    return;
-  }
+  const dadosEtiquetas = state.prateleiras.map(p => ({
+    id: p.id,
+    nome: p.nome,
+    codigo: p.codigoBarras || gerarCodigoPrateleira(p.id)
+  }));
 
-  const win = window.open('', '_blank');
+  try {
+    // Salva os dados para a página independente
+    localStorage.setItem(
+      'dsync_etiquetas_prateleiras',
+      JSON.stringify(dadosEtiquetas)
+    );
 
-  if (!win) {
-    mostrarToast('Permita pop-ups para imprimir!', 'warning');
-    return;
-  }
+    // Abre a página permanente de etiquetas
+    const win = window.open('/DSYNC/etiquetas.html', '_blank');
 
-  const escapar = valor => String(valor ?? '').replace(
-    /[&<>"']/g,
-    c => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
-    })[c]
-  );
-
-  let html = `
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-      <meta charset="UTF-8">
-      <title>Etiquetas de Prateleiras</title>
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          margin: 20px;
-        }
-
-        .etiquetas {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 15px;
-        }
-
-        .etiqueta {
-          border: 1px solid #000;
-          padding: 15px;
-          text-align: center;
-          break-inside: avoid;
-        }
-
-        .nome {
-          font-weight: bold;
-          font-size: 18px;
-          margin-bottom: 10px;
-        }
-
-        .qr {
-          display: flex;
-          justify-content: center;
-          margin: 10px auto;
-        }
-
-        .codigo {
-          font-size: 13px;
-          font-weight: bold;
-        }
-
-        @media print {
-          .no-print { display: none; }
-        }
-      </style>
-    </head>
-    <body>
-      <h2>Etiquetas de Prateleiras</h2>
-      <button class="no-print" onclick="window.print()">
-        Imprimir Etiquetas
-      </button>
-      <div class="etiquetas">
-  `;
-
-  state.prateleiras.forEach((p, i) => {
-    const codigo = p.codigoBarras || gerarCodigoPrateleira(p.id);
-
-    html += `
-      <div class="etiqueta">
-        <div class="nome">${escapar(p.nome)}</div>
-        <div id="qr-${i}" class="qr"></div>
-        <div class="codigo">${escapar(codigo)}</div>
-      </div>
-    `;
-  });
-
-  html += `
-      </div>
-    </body>
-    </html>
-  `;
-
-  win.document.write(html);
-  win.document.close();
-
-  state.prateleiras.forEach((p, i) => {
-    const codigo = p.codigoBarras || gerarCodigoPrateleira(p.id);
-    const elemento = win.document.getElementById(`qr-${i}`);
-
-    if (elemento) {
-      new QRCode(elemento, {
-        text: codigo,
-        width: 120,
-        height: 120,
-        colorDark: '#000000',
-        colorLight: '#FFFFFF',
-        correctLevel: QRCode.CorrectLevel.M
-      });
+    if (!win) {
+      mostrarToast('Permita pop-ups para abrir as etiquetas!', 'warning');
+      return;
     }
-  });
+
+  } catch (erro) {
+    console.error('Erro ao preparar etiquetas:', erro);
+    mostrarToast('Erro ao preparar etiquetas!', 'error');
+  }
 }
+
 
 
 // ============================================================
@@ -5664,34 +5576,6 @@ function processarCodigoScannerPrateleira(codigoLido) {
   }, 200);
 }
 
-
-
-/*function processarCodigoScannerPrateleira(codigoLido) {
-  const cod = String(codigoLido || '').trim().toUpperCase();
-  if (!cod) return;
-
-  const shelf = state.prateleiras.find(s =>
-    (s.codigoBarras && s.codigoBarras.toUpperCase() === cod) ||
-    (s.id && s.id.toUpperCase() === cod) ||
-    (s.nome && s.nome.toUpperCase() === cod)
-  );
-
-  if (!shelf) {
-    mostrarToast(`❌ Prateleira "${cod}" não encontrada!`, 'error');
-    return;
-  }
-
-  if (typeof scannerPrateleiraCallback === 'function') {
-    fecharScannerPrateleira(false);
-    try { scannerPrateleiraCallback(cod, shelf); } catch (e) { console.error(e); }
-    scannerPrateleiraCallback = null;
-    return;
-  }
-
-  fecharScannerPrateleira(false);
-  mostrarToast(`✅ Prateleira ${shelf.nome} detectada!`, 'success');
-  setTimeout(() => { abrirMovimentacaoComOrigem(shelf.id); }, 200);
-}*/
 
 function fecharScannerPrateleira() {
   const modal = document.getElementById('modalScannerPrateleira');
