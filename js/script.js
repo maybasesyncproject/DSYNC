@@ -5619,7 +5619,52 @@ function confirmarScannerPrateleiraManual() {
   processarCodigoScannerPrateleira(cod);
 }
 
+
 function processarCodigoScannerPrateleira(codigoLido) {
+  const cod = String(codigoLido || '').trim().toUpperCase();
+  if (!cod) return;
+
+  const shelf = state.prateleiras.find(s =>
+    (s.codigoBarras && s.codigoBarras.toUpperCase() === cod) ||
+    (s.id && s.id.toUpperCase() === cod) ||
+    (s.nome && s.nome.toUpperCase() === cod)
+  );
+
+  if (!shelf) {
+    mostrarToast(`❌ Prateleira "${cod}" não encontrada!`, 'error');
+    return;
+  }
+
+  // Preserva o callback antes de fechar o scanner
+  const callback = scannerPrateleiraCallback;
+
+  // Limpa a referência global
+  scannerPrateleiraCallback = null;
+
+  // Fecha o scanner
+  fecharScannerPrateleira();
+
+  // Executa a ação solicitada
+  if (typeof callback === 'function') {
+    try {
+      callback(cod, shelf);
+    } catch (e) {
+      console.error('Erro ao executar callback da prateleira:', e);
+      mostrarToast('Erro ao processar prateleira!', 'error');
+    }
+    return;
+  }
+
+  // Comportamento padrão: abrir movimentação com a origem
+  mostrarToast(`✅ Prateleira ${shelf.nome} detectada!`, 'success');
+
+  setTimeout(() => {
+    abrirMovimentacaoComOrigem(shelf.id);
+  }, 200);
+}
+
+
+/*function processarCodigoScannerPrateleira(codigoLido) {
   const cod = String(codigoLido || '').trim().toUpperCase();
   if (!cod) return;
 
@@ -5644,7 +5689,7 @@ function processarCodigoScannerPrateleira(codigoLido) {
   fecharScannerPrateleira(false);
   mostrarToast(`✅ Prateleira ${shelf.nome} detectada!`, 'success');
   setTimeout(() => { abrirMovimentacaoComOrigem(shelf.id); }, 200);
-}
+}*/
 
 function fecharScannerPrateleira() {
   const modal = document.getElementById('modalScannerPrateleira');
