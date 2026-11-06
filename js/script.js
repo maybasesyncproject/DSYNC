@@ -5620,6 +5620,7 @@ function confirmarScannerPrateleiraManual() {
 }
 
 
+
 function processarCodigoScannerPrateleira(codigoLido) {
   const cod = String(codigoLido || '').trim().toUpperCase();
   if (!cod) return;
@@ -5635,33 +5636,34 @@ function processarCodigoScannerPrateleira(codigoLido) {
     return;
   }
 
-  // Preserva o callback antes de fechar o scanner
+  // Guardar o callback ANTES de fechar o scanner
   const callback = scannerPrateleiraCallback;
 
-  // Limpa a referência global
+  // Evitar processamento duplicado
   scannerPrateleiraCallback = null;
 
-  // Fecha o scanner
+  // Fechar scanner (pode limpar a variável global)
   fecharScannerPrateleira();
 
-  // Executa a ação solicitada
+  // Executar callback preservado
   if (typeof callback === 'function') {
     try {
       callback(cod, shelf);
     } catch (e) {
-      console.error('Erro ao executar callback da prateleira:', e);
-      mostrarToast('Erro ao processar prateleira!', 'error');
+      console.error('Erro no callback da prateleira:', e);
+      mostrarToast('Erro ao executar ação da prateleira!', 'error');
     }
     return;
   }
 
-  // Comportamento padrão: abrir movimentação com a origem
+  // Comportamento padrão
   mostrarToast(`✅ Prateleira ${shelf.nome} detectada!`, 'success');
 
   setTimeout(() => {
     abrirMovimentacaoComOrigem(shelf.id);
   }, 200);
 }
+
 
 
 /*function processarCodigoScannerPrateleira(codigoLido) {
