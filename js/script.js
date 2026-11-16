@@ -590,6 +590,7 @@ function renderPosicaoOcupada(shelf, posNum, pos) {
         <button class="btn btn-xs btn-yellow" onclick="editarCorPosicao('${shelf.id}','${pos.id}','${pos.posicao}')">🎨</button>
         <button class="btn btn-xs btn-info" onclick="abrirEditarPosicao('${shelf.id}','${pos.id}','${pos.posicao}')">✏️</button>
         <button class="btn btn-xs btn-danger" onclick="abrirOpcoesRemocao('${shelf.id}','${pos.id}','${pos.posicao}')" title="Retirar ou excluir produto">🗑️</button>
+      </div>
     </div>`;
 }
 
