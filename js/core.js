@@ -44,6 +44,7 @@ function saveData() {
   setData(STORAGE_KEYS.injetando, state.injetando);
   setData(STORAGE_KEYS.injetados, state.injetados);
   setData(STORAGE_KEYS.materiaPrima, state.materiaPrima);
+  setData(STORAGE_KEYS.retiradasPrateleira, state.retiradasPrateleira || []);
 }
 
 function salvarInsumos() {
@@ -77,7 +78,8 @@ function salvarEstadoParaUndo() {
     injetando: JSON.parse(JSON.stringify(state.injetando)),
     injetados: JSON.parse(JSON.stringify(state.injetados)),
     materiaPrima: JSON.parse(JSON.stringify(state.materiaPrima)),
-    pedidoCargaAtual: JSON.parse(JSON.stringify(state.pedidoCargaAtual))
+    pedidoCargaAtual: JSON.parse(JSON.stringify(state.pedidoCargaAtual)),
+    retiradasPrateleira: JSON.parse(JSON.stringify(state.retiradasPrateleira || []))
   };
   state.undoStack.push(snapshot);
   if (state.undoStack.length > 50) state.undoStack.shift();
@@ -92,6 +94,7 @@ function desfazer() {
   state.pedidosSeparar = s.pedidosSeparar; state.pedidosFinalizados = s.pedidosFinalizados;
   state.injecao = s.injecao; state.injetando = s.injetando; state.injetados = s.injetados;
   state.materiaPrima = s.materiaPrima;
+  state.retiradasPrateleira = s.retiradasPrateleira || [];
   if (s.pedidoCargaAtual) state.pedidoCargaAtual = s.pedidoCargaAtual;
   saveData(); salvarInsumos(); salvarPedidoCarga();
   atualizarTudo();
@@ -105,6 +108,7 @@ function desfazer() {
 function carregarDados() {
   state.produtos = getData(STORAGE_KEYS.produtos, []);
   state.prateleiras = getData(STORAGE_KEYS.prateleiras, []);
+  state.retiradasPrateleira = getData(STORAGE_KEYS.retiradasPrateleira, []);
   state.carga = getData(STORAGE_KEYS.carga, []);
   state.historico = getData(STORAGE_KEYS.historico, []);
   state.usuarios = getData(STORAGE_KEYS.usuarios, []);

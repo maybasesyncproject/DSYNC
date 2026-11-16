@@ -10,6 +10,7 @@ async function salvarNaNuvem() {
   const dados = {
     produtos: state.produtos || [],
     prateleiras: state.prateleiras || [],
+    retiradasPrateleira: state.retiradasPrateleira || [],
     carga: state.carga || [],
     historico: state.historico || [],
     insumos: state.insumos || {
@@ -145,6 +146,7 @@ async function carregarDaNuvem() {
 
   state.produtos = dados.produtos || [];
   state.prateleiras = dados.prateleiras || [];
+  state.retiradasPrateleira = dados.retiradasPrateleira || [];
   state.carga = dados.carga || [];
   state.historico = dados.historico || [];
 

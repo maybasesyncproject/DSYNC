@@ -5,6 +5,7 @@
 const state = {
   produtos: [],
   prateleiras: [],
+  retiradasPrateleira: [],
   carga: [],
   historico: [],
   usuarios: [],
@@ -53,7 +54,7 @@ const STORAGE_KEYS = {
   pedidosSeparar: 'pedidosSeparar', pedidosFinalizados: 'pedidosFinalizados',
   injecao: 'injecao', injetando: 'injetando', injetados: 'injetados',
   materiaPrima: 'materiaPrima', initialized: 'dsync_initialized',
-  pedidoCarga: 'pedidoCargaAtual'
+  pedidoCarga: 'pedidoCargaAtual', retiradasPrateleira: 'retiradasPrateleira',
 };
 
 
@@ -588,8 +589,7 @@ function renderPosicaoOcupada(shelf, posNum, pos) {
         ${disponivel > 0 ? `<button class="btn btn-xs btn-success" onclick="adicionarCarga('${shelf.id}','${pos.id}','${pos.posicao}')" title="Enviar p/ carga">🚛</button>` : ''}
         <button class="btn btn-xs btn-yellow" onclick="editarCorPosicao('${shelf.id}','${pos.id}','${pos.posicao}')">🎨</button>
         <button class="btn btn-xs btn-info" onclick="abrirEditarPosicao('${shelf.id}','${pos.id}','${pos.posicao}')">✏️</button>
-        <button class="btn btn-xs btn-danger" onclick="removerDaPrateleira('${shelf.id}','${pos.id}','${pos.posicao}')">🗑️</button>
-      </div>
+        <button class="btn btn-xs btn-danger" onclick="abrirOpcoesRemocao('${shelf.id}','${pos.id}','${pos.posicao}')" title="Retirar ou excluir produto">🗑️</button>
     </div>`;
 }
 
@@ -1226,6 +1226,239 @@ function removerDaPrateleira(shelfId, produtoId, posicao) {
   atualizarTudo();
   mostrarToast('🗑️ Removido!', 'warning');
 }
+
+
+let remocaoPrateleiraPendente = null;
+
+function abrirOpcoesRemocao(shelfId, produtoId, posicao) {
+  const shelf = state.prateleiras.find(
+    s => String(s.id) === String(shelfId)
+  );
+
+  const produtoPosicao = shelf?.produtos.find(p =>
+    String(p.id) === String(produtoId) &&
+    String(p.posicao) === String(posicao)
+  );
+
+  const produto = state.produtos.find(
+    p => String(p.id) === String(produtoId)
+  );
+
+  if (!shelf || !produtoPosicao || !produto) {
+    mostrarToast('Produto ou posição não encontrados!', 'error');
+    return;
+  }
+
+  remocaoPrateleiraPendente = {
+    shelfId,
+    produtoId,
+    posicao
+  };
+
+  document.getElementById('remocaoDescricao').textContent =
+    `${produto.nome} — ${shelf.nome}, posição ${posicao} — ${produtoPosicao.quantidade} cx`;
+
+  document.getElementById('motivoExclusaoPrateleira').value = '';
+
+  document.getElementById('modalOpcoesRemocao').style.display = 'flex';
+}
+
+function fecharModalOpcoesRemocao() {
+  document.getElementById('modalOpcoesRemocao').style.display = 'none';
+  remocaoPrateleiraPendente = null;
+}
+
+// OPÇÃO 1: mantém o comportamento anterior
+function confirmarRemocaoNormal() {
+  if (!remocaoPrateleiraPendente) return;
+
+  const { shelfId, produtoId, posicao } =
+    remocaoPrateleiraPendente;
+
+  fecharModalOpcoesRemocao();
+
+  removerDaPrateleira(shelfId, produtoId, posicao);
+}
+
+// OPÇÃO 2: exclusão sem devolução de insumos
+function confirmarExclusaoOutroMotivo() {
+  if (!remocaoPrateleiraPendente) return;
+
+  const { shelfId, produtoId, posicao } =
+    remocaoPrateleiraPendente;
+
+  const shelf = state.prateleiras.find(
+    s => String(s.id) === String(shelfId)
+  );
+
+  if (!shelf) return;
+
+  const idx = shelf.produtos.findIndex(p =>
+    String(p.id) === String(produtoId) &&
+    String(p.posicao) === String(posicao)
+  );
+
+  if (idx === -1) {
+    mostrarToast('Posição não encontrada!', 'error');
+    return;
+  }
+
+  const p = shelf.produtos[idx];
+
+  const produto = state.produtos.find(
+    x => String(x.id) === String(produtoId)
+  );
+
+  if (!produto) {
+    mostrarToast('Produto não encontrado!', 'error');
+    return;
+  }
+
+  const motivo = document
+    .getElementById('motivoExclusaoPrateleira')
+    .value.trim();
+
+  if (!confirm(
+    `CONFIRMAR EXCLUSÃO?\n\n` +
+    `Produto: ${produto.nome}\n` +
+    `Quantidade: ${p.quantidade} cx\n` +
+    `Local: ${shelf.nome} - posição ${posicao}\n\n` +
+    `Os insumos NÃO serão devolvidos ao estoque.`
+  )) return;
+
+  salvarEstadoParaUndo();
+
+  // Baixa no estoque do produto
+  produto.quantidade = Math.max(
+    0,
+    (produto.quantidade || 0) - (p.quantidade || 0)
+  );
+
+  // Remove reservas relacionadas à posição
+  state.carga = state.carga.filter(c =>
+    !(
+      String(c.id) === String(produtoId) &&
+      String(c.prateleira) === String(shelfId) &&
+      String(c.posicao) === String(posicao)
+    )
+  );
+
+  // Remove a posição ocupada
+  shelf.produtos.splice(idx, 1);
+
+  // Cria registro independente de auditoria
+  const agora = new Date();
+
+  state.retiradasPrateleira.unshift({
+    id: 'ret_' + Date.now(),
+    data: agora.toISOString(),
+    usuario:
+      state.usuarioAtual?.nome ||
+      state.usuarioAtual?.nomeUsuario ||
+      usuarioSupabase?.email ||
+      'Usuário',
+    produto: produto.nome,
+    produtoId: produtoId,
+    prateleira: shelf.nome,
+    prateleiraId: shelfId,
+    posicao: String(posicao),
+    quantidade: p.quantidade,
+    tipo: 'Exclusão por outro motivo',
+    motivo: motivo || 'Não informado'
+  });
+
+  // Registra também no histórico geral
+  registrarHistorico(
+    produto.nome,
+    'Exclusão por outro motivo',
+    p.quantidade,
+    `${shelf.nome}-${posicao} | Motivo: ${motivo || 'Não informado'} `
+  );
+
+  // Persistência local e sincronização
+  setData(STORAGE_KEYS.carga, state.carga);
+  setData(STORAGE_KEYS.prateleiras, state.prateleiras);
+  setData(STORAGE_KEYS.produtos, state.produtos);
+  setData(
+    STORAGE_KEYS.retiradasPrateleira,
+    state.retiradasPrateleira
+  );
+
+  fecharModalOpcoesRemocao();
+
+  atualizarTudo();
+  renderizarRelatorioRetiradas();
+
+  mostrarToast(
+    'Exclusão registrada no relatório. Insumos não devolvidos.',
+    'success'
+  );
+}
+
+
+function renderizarRelatorioRetiradas() {
+  const container = document.getElementById(
+    'relatorioRetiradasContainer'
+  );
+
+  if (!container) return;
+
+  const registros = state.retiradasPrateleira || [];
+
+  if (registros.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:35px;color:var(--text-muted)">
+        📭 Nenhuma retirada registrada.
+      </div>
+    `;
+    return;
+  }
+
+  let html = `
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Usuário</th>
+            <th>Produto</th>
+            <th>Prateleira</th>
+            <th>Quantidade</th>
+            <th>Motivo</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  registros.forEach(r => {
+    const data = r.data
+      ? new Date(r.data).toLocaleString('pt-BR')
+      : '-';
+
+    html += `
+      <tr>
+        <td>${escapeHTML(data)}</td>
+        <td>${escapeHTML(r.usuario)}</td>
+        <td><strong>${escapeHTML(r.produto)}</strong></td>
+        <td>${escapeHTML(r.prateleira)} - ${escapeHTML(r.posicao)}</td>
+        <td>${Number(r.quantidade) || 0} cx</td>
+        <td>${escapeHTML(r.motivo)}</td>
+      </tr>
+    `;
+  });
+
+  html += `
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:12px;color:var(--text-muted)">
+      Total de registros: ${registros.length}
+    </p>
+  `;
+
+  container.innerHTML = html;
+}
+
 
 
 // ===== SEPARAÇÃO =====
@@ -2454,7 +2687,8 @@ function abrirExportar() {
     produtoInsumoMap: state.produtoInsumoMap, pedidosSeparar: state.pedidosSeparar,
     pedidosFinalizados: state.pedidosFinalizados, injecao: state.injecao,
     injetando: state.injetando, injetados: state.injetados, materiaPrima: state.materiaPrima,
-    pedidoCargaAtual: state.pedidoCargaAtual
+    pedidoCargaAtual: state.pedidoCargaAtual,
+    retiradasPrateleira: state.retiradasPrateleira || [],
   };
   const t = document.getElementById('dadosTextarea');
   t.value = JSON.stringify(dados, null, 2);
@@ -2520,6 +2754,7 @@ function importarDados() {
     salvarEstadoParaUndo();
     state.produtos = imp.produtos || [];
     state.prateleiras = imp.prateleiras || [];
+    state.retiradasPrateleira = imp.retiradasPrateleira || state.retiradasPrateleira || [];
     state.carga = imp.carga || [];
     state.historico = imp.historico || [];
     state.insumos = imp.insumos || state.insumos;
@@ -2731,7 +2966,10 @@ function mostrarSubAba(subAba) {
   else if (subAba === 'injetando') renderizarInjetando();
   else if (subAba === 'injetados') renderizarInjetados();
   else if (subAba === 'materiaprima') renderizarMateriaPrima();
-}// ============================================================
+  else if (subAba === 'relatorios') { renderizarRelatorioRetiradas(); } 
+}
+
+// ============================================================
 // INJEÇÃO
 // ============================================================
 function renderizarInjecao() {
@@ -3861,7 +4099,7 @@ function atualizarListasPedidos() {
       } else if (item.modalidade === 'produzir') {
         detalhes = `
           <div style="margin-top:6px;color:var(--success);">
-            🏭 Produziu ${item.pacotes} pacotes
+            🏭 Produzir ${item.pacotes} pacotes
           </div>
         `;
 
