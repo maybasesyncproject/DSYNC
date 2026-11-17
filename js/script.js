@@ -1825,9 +1825,7 @@ function finalizarCarga() {
 
 
 function carregarCarga() {
-  console.log('[CARGA] Iniciando carregarCarga()');
-
-  try {
+    try {
     const c = document.getElementById('cargaContainer');
 
     if (!c) {
@@ -1835,14 +1833,6 @@ function carregarCarga() {
       return;
     }
 
-    console.log('[CARGA] Container encontrado:', c);
-
-    console.log('[CARGA] Estado:', {
-      stateExiste: typeof state !== 'undefined',
-      cargaArray: Array.isArray(state?.carga),
-      totalReservas: state?.carga?.length,
-      totalProdutos: state?.produtos?.length
-    });
 
     let html = `
       <div class="controls">

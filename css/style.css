@@ -2827,75 +2827,75 @@ body.dark-mode .scanner-produto-info.erro {
         min-width: 0;
         overflow-x: auto;
     }
+}
 
 
-    /* ===== AJUSTES: RELATÓRIO DE RETIRADAS ===== */
+/* ===== AJUSTES: RELATÓRIO DE RETIRADAS ===== */
 
-    #relatorioRetiradasContainer {
-        width: 100%;
-        min-width: 0;
-    }
+#relatorioRetiradasContainer {
+    width: 100%;
+    min-width: 0;
+}
 
-    #relatorioRetiradasContainer>div {
-        width: 100%;
-        overflow-x: auto;
-    }
+#relatorioRetiradasContainer>div {
+    width: 100%;
+    overflow-x: auto;
+}
 
-    #relatorioRetiradasContainer table {
-        width: 100%;
-        min-width: 850px;
-        border-collapse: separate;
-        border-spacing: 0;
-        table-layout: auto;
-    }
+#relatorioRetiradasContainer table {
+    width: 100%;
+    min-width: 850px;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: auto;
+}
+
+#relatorioRetiradasContainer th,
+#relatorioRetiradasContainer td {
+    padding: 13px 16px;
+    line-height: 1.5;
+    text-align: left;
+    vertical-align: middle;
+    white-space: normal;
+}
+
+#relatorioRetiradasContainer th {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+#relatorioRetiradasContainer td {
+    font-size: 13px;
+    overflow-wrap: break-word;
+}
+
+#relatorioRetiradasContainer input,
+#relatorioRetiradasContainer select,
+#relatorioRetiradasContainer textarea,
+#motivoExclusaoPrateleira {
+    width: 100%;
+    min-width: 0;
+    padding: 10px 14px;
+    box-sizing: border-box;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--bg-card);
+}
+
+#relatorioRetiradasContainer input:focus,
+#relatorioRetiradasContainer select:focus,
+#relatorioRetiradasContainer textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(26, 43, 76, 0.10);
+}
+
+@media (max-width: 768px) {
 
     #relatorioRetiradasContainer th,
     #relatorioRetiradasContainer td {
-        padding: 13px 16px;
-        line-height: 1.5;
-        text-align: left;
-        vertical-align: middle;
-        white-space: normal;
+        padding: 11px 12px;
     }
-
-    #relatorioRetiradasContainer th {
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    #relatorioRetiradasContainer td {
-        font-size: 13px;
-        overflow-wrap: break-word;
-    }
-
-    #relatorioRetiradasContainer input,
-    #relatorioRetiradasContainer select,
-    #relatorioRetiradasContainer textarea {
-        width: 100%;
-        min-width: 0;
-        padding: 10px 14px;
-        box-sizing: border-box;
-        border: 1px solid var(--border-strong);
-        border-radius: 8px;
-        font-size: 13px;
-        color: var(--text);
-        background: var(--bg-card);
-    }
-
-    #relatorioRetiradasContainer input:focus,
-    #relatorioRetiradasContainer select:focus,
-    #relatorioRetiradasContainer textarea:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(26, 43, 76, 0.10);
-    }
-
-    @media (max-width: 768px) {
-
-        #relatorioRetiradasContainer th,
-        #relatorioRetiradasContainer td {
-            padding: 11px 12px;
-        }
-    }
-
 }
